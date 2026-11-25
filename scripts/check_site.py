@@ -12,6 +12,7 @@ class Page(HTMLParser):
     def __init__(self):
         super().__init__()
         self.links = []
+        self.downloads = []
         self.ids = set()
         self.h1 = 0
         self.main = 0
@@ -30,7 +31,9 @@ class Page(HTMLParser):
         if tag in ('input', 'textarea') and a.get('name'): self.fields[a['name']] = a
         if tag == 'html': self.lang = a.get('lang') == 'en'
         if tag == 'meta' and a.get('name') == 'robots': self.robots = a.get('content','') == 'index, follow'
-        if tag == 'a' and 'href' in a: self.links.append(a['href'])
+        if tag == 'a' and 'href' in a:
+            self.links.append(a['href'])
+            if 'download' in a: self.downloads.append((a['href'], a['download']))
         if tag in ('script','img','link','iframe') and a.get('src',a.get('href','')).startswith(('http:','https:','//')):
             raise AssertionError('external resource')
 
@@ -44,6 +47,7 @@ for route in sorted(expected):
     parser.feed(html)
     assert parser.h1 == 1 and parser.main == 1 and parser.nav and parser.lang and parser.robots, route
     assert "main" in parser.ids, route
+    assert parser.downloads == ([("/Montel_Rice_Resume.pdf", "Montel_Rice_Resume.pdf")] if route == "/resume/" else []), route
     if route == "/contact/":
         assert len(parser.forms) == 1
         assert parser.forms[0].get("action") == "https://api.web3forms.com/submit"
@@ -66,12 +70,13 @@ for route in sorted(expected):
             continue
         assert not u.scheme and not u.netloc, (route, href)
         if u.path:
-            assert u.path in expected, (route, href)
+            assert u.path in expected or (route == "/resume/" and u.path == "/Montel_Rice_Resume.pdf"), (route, href)
         if u.fragment and not u.path:
             assert u.fragment in parser.ids, (route,href)
         link_count += 1
 assert contact_links == allowed_contact_links, contact_links
 assert "Allow: /" in (root / "robots.txt").read_text()
 assert (root / "favicon.svg").exists()
-assert not list(root.rglob("*.pdf"))
+assert sorted(p.relative_to(root).as_posix() for p in root.rglob("*.pdf")) == ["Montel_Rice_Resume.pdf"]
+assert (root / "Montel_Rice_Resume.pdf").read_bytes().startswith(b"%PDF-")
 print(f"PASS: {len(expected)} routes, {link_count} internal links, heading/landmark/robots checks, targeted privacy checks, two allowlisted professional profile links")
