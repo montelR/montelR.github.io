@@ -19,6 +19,8 @@ class Page(HTMLParser):
         self.robots = False
         self.lang = False
         self.nav = False
+        self.in_primary_nav = False
+        self.primary_nav_links = []
         self.forms = []
         self.fields = {}
     def handle_starttag(self, tag, attributes):
@@ -26,16 +28,22 @@ class Page(HTMLParser):
         if 'id' in a: self.ids.add(a['id'])
         if tag == 'h1': self.h1 += 1
         if tag == 'main': self.main += 1
-        if tag == 'nav': self.nav = True
+        if tag == 'nav':
+            self.nav = True
+            self.in_primary_nav = a.get('aria-label') == 'Primary'
         if tag == 'form': self.forms.append(a)
         if tag in ('input', 'textarea') and a.get('name'): self.fields[a['name']] = a
         if tag == 'html': self.lang = a.get('lang') == 'en'
         if tag == 'meta' and a.get('name') == 'robots': self.robots = a.get('content','') == 'index, follow'
         if tag == 'a' and 'href' in a:
             self.links.append(a['href'])
+            if self.in_primary_nav: self.primary_nav_links.append((a['href'], a.get('aria-current')))
             if 'download' in a: self.downloads.append((a['href'], a['download']))
         if tag in ('script','img','link','iframe') and a.get('src',a.get('href','')).startswith(('http:','https:','//')):
             raise AssertionError('external resource')
+
+    def handle_endtag(self, tag):
+        if tag == "nav": self.in_primary_nav = False
 
 actual = {"/" + str(f.parent.relative_to(root)).replace(".", "", 1).strip("/") + ("/" if f.parent != root else "") for f in root.rglob("index.html")}
 assert actual == expected, (actual, expected)
@@ -47,6 +55,7 @@ for route in sorted(expected):
     parser.feed(html)
     assert parser.h1 == 1 and parser.main == 1 and parser.nav and parser.lang and parser.robots, route
     assert "main" in parser.ids, route
+    assert parser.primary_nav_links == [(link, "page" if link == route else None) for link in ("/", "/about/", "/projects/", "/case-studies/", "/resume/", "/contact/")], route
     assert parser.downloads == ([("/Montel_Rice_Resume.pdf", "Montel_Rice_Resume.pdf")] if route == "/resume/" else []), route
     if route == "/contact/":
         assert len(parser.forms) == 1
