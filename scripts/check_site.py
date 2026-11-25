@@ -4,7 +4,7 @@ from urllib.parse import urlsplit
 import re
 
 root = Path(__file__).resolve().parents[1] / "dist"
-expected = {"/", "/projects/", "/projects/sentinel-work/", "/projects/indigo-relay/", "/projects/sentinel/", "/case-studies/", "/case-studies/agent-session-reliability/", "/case-studies/evaluation-release-gates/", "/case-studies/bounded-retrieval/", "/case-studies/observable-infrastructure/", "/about/", "/resume/", "/contact/"}
+expected = {"/evaluation-lab/", "/", "/projects/", "/projects/sentinel-work/", "/projects/indigo-relay/", "/projects/sentinel/", "/case-studies/", "/case-studies/agent-session-reliability/", "/case-studies/evaluation-release-gates/", "/case-studies/bounded-retrieval/", "/case-studies/observable-infrastructure/", "/about/", "/resume/", "/contact/"}
 allowed_contact_links = {"https://www.linkedin.com/in/montel-rice-6b89a544b", "https://github.com/montelR"}
 contact_links = set()
 
@@ -55,7 +55,7 @@ for route in sorted(expected):
     parser.feed(html)
     assert parser.h1 == 1 and parser.main == 1 and parser.nav and parser.lang and parser.robots, route
     assert "main" in parser.ids, route
-    assert parser.primary_nav_links == [(link, "page" if link == route else None) for link in ("/", "/about/", "/projects/", "/case-studies/", "/resume/", "/contact/")], route
+    assert parser.primary_nav_links == [(link, "page" if link == route else None) for link in ("/", "/about/", "/projects/", "/case-studies/", "/evaluation-lab/", "/resume/", "/contact/")], route
     assert parser.downloads == ([("/Montel_Rice_Resume.pdf", "Montel_Rice_Resume.pdf")] if route == "/resume/" else []), route
     if route == "/contact/":
         assert len(parser.forms) == 1

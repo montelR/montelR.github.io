@@ -56,3 +56,36 @@ nav a{display:inline-flex;align-items:center;min-height:32px;padding:.1rem .15re
 .contact-form .form-notice{font-size:.85rem;margin:0}
 #contact-status{margin:0;color:var(--ink)}
 #contact-status:empty{display:none}
+
+/* Interactive fictional evaluation lab. */
+.lab-workspace{display:grid;grid-template-columns:minmax(0, .85fr) minmax(0,1.15fr);gap:1rem;align-items:start}
+.lab-controls fieldset{border:0;padding:0;margin:0;min-width:0}
+.lab-controls legend{font-weight:700;margin-bottom:.6rem}
+.lab-option{display:flex;gap:.7rem;align-items:flex-start;border-top:1px solid var(--line);padding:.8rem 0;cursor:pointer}
+.lab-option input{accent-color:var(--accent);flex-shrink:0;width:1.1rem;height:1.1rem;margin:.27rem 0 0}
+.lab-option strong{font-size:.94rem;line-height:1.4;display:block}
+.lab-option small{display:block;color:var(--muted);line-height:1.4;margin-top:.2rem}
+.lab-controls button{font:inherit;font-weight:700;cursor:pointer;background:var(--surface)}
+.lab-controls button:focus-visible,.lab-option input:focus-visible,.lab-table-wrap:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.lab-controls #lab-pending{margin:.75rem 0 0;font-size:.85rem}
+.lab-verdict{border:1px solid var(--line);border-left:4px solid var(--accent);padding:.75rem 1rem;border-radius:.4rem;margin-bottom:1rem;background:var(--tint)}
+.lab-verdict strong{display:block;font-size:1.4rem}
+.lab-verdict span{display:block;font-size:.9rem}
+.lab-verdict[data-verdict=FAIL]{border-left-color:#dc5959}
+.lab-verdict[data-verdict=PASS]{border-left-color:#47a77c}
+.lab-metrics{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:1.5rem}
+.lab-metrics .metric{border:1px solid var(--line);padding:.65rem;border-radius:.4rem}
+.lab-bar-row{display:grid;grid-template-columns:6.4rem minmax(0,1fr) 2.5rem;align-items:center;gap:.5rem;margin-bottom:.65rem;font-size:.85rem}
+.lab-track{background:var(--tint);border-radius:.25rem;height:.7rem;overflow:hidden}
+.lab-track div{background:var(--accent);height:100%;border-radius:.25rem}
+.lab-results h3{margin-top:1.25rem}
+.lab-checks{list-style:none;margin:0;padding:0}
+.lab-checks li{display:flex;gap:.7rem;align-items:baseline;padding:.45rem 0;border-top:1px solid var(--line);font-size:.85rem}
+.lab-checks strong{min-width:4.6rem;color:var(--accent);font-size:.75rem}
+.lab-checks [data-ok=false] strong{color:var(--ink)}
+.lab-table-wrap{max-width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:.5rem}
+.lab-table{width:100%;border-collapse:collapse;background:var(--surface);font-size:.85rem;text-align:left}
+.lab-table th,.lab-table td{padding:.65rem .75rem;border-bottom:1px solid var(--line);vertical-align:top}
+.lab-table thead{background:var(--tint)}
+.lab-table tbody tr:last-child>*{border-bottom:0}
+@media(max-width:760px){.lab-workspace{grid-template-columns:minmax(0,1fr)}}

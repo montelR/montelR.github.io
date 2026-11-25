@@ -1,0 +1,95 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import {fixtures,evaluate} from '../lib/evaluation.mjs';
+const initial=fixtures();
+const result=evaluate(initial);
+const options=[
+  ['second','Include a second improvement mechanism','Adds a hypothetical duplicate-scheduling case.'],
+  ['low','Reduce improvement to 10%','Each eligible case goes from 10 to 9 notices.'],
+  ['wrong','Introduce a classification regression','One candidate outcome differs from its expected result.'],
+  ['effect','Introduce an unauthorized effect','One fictional case records an unauthorized action.'],
+  ['suppress','Suppress a necessary review','A required review notice disappears.']
+];
+---
+<BaseLayout title="AI Evaluation Lab" description="Explore paired AI evaluation and evidence-based development gates using fictional cases.">
+  <header class="page-head">
+    <p class="eyebrow">Interactive engineering demonstration</p>
+    <h1>AI Evaluation Lab</h1>
+    <p>Can a candidate pass every correctness test and still be held? Compare fictional document-review outcomes and investigate what changes a development release decision.</p>
+    <p class="muted">Deterministic simulation, not a live AI model or a new benchmark. Evaluation runs entirely in your browser.</p>
+  </header>
+  <section class="lab-workspace" aria-label="Evaluation workspace">
+    <div class="card lab-controls">
+      <h2>Configure a run</h2>
+      <p>Baseline A and candidate B share predeclared expected outcomes.</p>
+      <fieldset id="lab-options">
+        <legend>Experiment conditions</legend>
+        {options.map(([id,label,detail])=><label class="lab-option"><input type="checkbox" name={id}/><span><strong>{label}</strong><small>{detail}</small></span></label>)}
+      </fieldset>
+      <div class="buttons"><button class="button primary" type="button" id="lab-run">Run evaluation</button><button class="button" type="button" id="lab-reset">Reset</button></div>
+      <p class="muted" id="lab-pending">Showing the initial fictional evaluation.</p>
+      <noscript><p>Enable JavaScript to change the conditions. Initial results are shown below.</p></noscript>
+    </div>
+    <div class="card lab-results">
+      <h2>Evaluation result</h2>
+      <div class="lab-verdict" id="lab-verdict" role="status" aria-live="polite" data-verdict="HOLD"><strong>HOLD</strong><span>Correctness passes, but only one independent mechanism improves.</span></div>
+      <div class="metric-grid lab-metrics">
+        <div class="metric"><strong id="lab-correct">{result.correct}/{result.total}</strong><span>Correct outcomes</span></div>
+        <div class="metric"><strong id="lab-reduction">100%</strong><span>Eligible notice reduction</span></div>
+        <div class="metric"><strong id="lab-mechanisms">1</strong><span>Improving mechanisms</span></div>
+        <div class="metric"><strong id="lab-effects">0</strong><span>Unauthorized effects</span></div>
+      </div>
+      <h3>Eligible notice comparison</h3>
+      <div class="lab-bar-row"><span>Baseline A</span><div class="lab-track"><div id="lab-bar-a" style="width:100%"></div></div><strong id="lab-before">5</strong></div>
+      <div class="lab-bar-row"><span>Candidate B</span><div class="lab-track"><div id="lab-bar-b" style="width:0%"></div></div><strong id="lab-after">0</strong></div>
+      <h3>Gate checks</h3>
+      <ul class="lab-checks" id="lab-checks">{result.checks.map(c=><li data-ok={String(c.ok)}><strong>{c.ok?'PASS':'NOT MET'}</strong><span>{c.label}</span></li>)}</ul>
+    </div>
+  </section>
+  <section class="section">
+    <h2>Inspect the paired cases</h2>
+    <p class="muted">Five stale-preview variants count as one mechanism. Eligibility and independence labels are predefined, not inferred from the results.</p>
+    <div class="lab-table-wrap" tabindex="0" role="region" aria-label="Paired case results"><table class="lab-table"><thead><tr><th scope="col">Case</th><th scope="col">Mechanism</th><th scope="col">Eligible</th><th scope="col">Expected A / B</th><th scope="col">Observed A / B</th><th scope="col">Notices A / B</th><th scope="col">Effects</th></tr></thead><tbody id="lab-cases">{initial.map(c=><tr><th scope="row">{c.id}</th><td>{c.mechanism}</td><td>{c.eligible?'Yes':'No'}</td><td>{c.expectedA} / {c.expectedB}</td><td>{c.observedA} / {c.observedB}</td><td>{c.before} / {c.after}</td><td>{c.effects}</td></tr>)}</tbody></table></div>
+  </section>
+  <section class="section prose">
+    <h2>What this demonstrates</h2>
+    <p>A safety regression produces FAIL. Passing correctness and safety with insufficient usefulness evidence produces HOLD. PASS means only that this fictional development gate is met, not that a model is ready for production.</p>
+    <p>Read the <a href="/case-studies/evaluation-release-gates/">documented release-gate investigation</a> for the separate historical project evidence and its limitations.</p>
+  </section>
+</BaseLayout>
+<script>
+  import {fixtures,evaluate} from '../lib/evaluation.mjs';
+  const el=(id:string)=>document.getElementById(id)!;
+  const inputs=[...document.querySelectorAll<HTMLInputElement>('#lab-options input')];
+  function run(){
+    const cases=fixtures(Object.fromEntries(inputs.map(i=>[i.name,i.checked])));
+    const r=evaluate(cases);
+    const verdict=el('lab-verdict');
+    verdict.dataset.verdict=r.verdict;
+    verdict.querySelector('strong')!.textContent=r.verdict==='PASS'?'PASS (development only)':r.verdict;
+    verdict.querySelector('span')!.textContent=r.verdict==='FAIL'?'Safety or correctness regression detected.':r.verdict==='HOLD'?'Safety passes, but usefulness evidence is insufficient.':'All fictional development checks are met. This is not deployment approval.';
+    el('lab-correct').textContent=r.correct+'/'+r.total;
+    el('lab-reduction').textContent=r.reduction===null?'N/A':(r.reduction*100).toFixed(0)+'%';
+    el('lab-mechanisms').textContent=String(r.mechanisms);
+    el('lab-effects').textContent=String(r.effects);
+    el('lab-before').textContent=String(r.before);
+    el('lab-after').textContent=String(r.after);
+    const max=Math.max(r.before,r.after,1);
+    el('lab-bar-a').style.width=r.before/max*100+'%';
+    el('lab-bar-b').style.width=r.after/max*100+'%';
+    el('lab-checks').replaceChildren(...r.checks.map(c=>{
+      const li=document.createElement('li'), strong=document.createElement('strong'), span=document.createElement('span');
+      li.dataset.ok=String(c.ok);strong.textContent=c.ok?'PASS':'NOT MET';span.textContent=c.label;li.append(strong,span);return li;
+    }));
+    el('lab-cases').replaceChildren(...cases.map(c=>{
+      const row=document.createElement('tr');
+      [c.id,c.mechanism,c.eligible?'Yes':'No',c.expectedA+' / '+c.expectedB,c.observedA+' / '+c.observedB,c.before+' / '+c.after,String(c.effects)].forEach((v,i)=>{
+        const cell=document.createElement(i?'td':'th');if(!i)cell.setAttribute('scope','row');cell.textContent=v;row.append(cell);
+      });return row;
+    }));
+    el('lab-pending').textContent='Showing the latest evaluation.';
+  }
+  inputs.forEach(i=>i.addEventListener('change',()=>{el('lab-pending').textContent='Conditions changed. Run evaluation to update results.';}));
+  el('lab-run').addEventListener('click',run);
+  el('lab-reset').addEventListener('click',()=>{inputs.forEach(i=>i.checked=false);run();});
+</script>
