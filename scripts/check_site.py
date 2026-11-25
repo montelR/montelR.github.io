@@ -18,12 +18,16 @@ class Page(HTMLParser):
         self.robots = False
         self.lang = False
         self.nav = False
+        self.forms = []
+        self.fields = {}
     def handle_starttag(self, tag, attributes):
         a = dict(attributes)
         if 'id' in a: self.ids.add(a['id'])
         if tag == 'h1': self.h1 += 1
         if tag == 'main': self.main += 1
         if tag == 'nav': self.nav = True
+        if tag == 'form': self.forms.append(a)
+        if tag in ('input', 'textarea') and a.get('name'): self.fields[a['name']] = a
         if tag == 'html': self.lang = a.get('lang') == 'en'
         if tag == 'meta' and a.get('name') == 'robots': self.robots = a.get('content','') == 'index, follow'
         if tag == 'a' and 'href' in a: self.links.append(a['href'])
@@ -40,6 +44,18 @@ for route in sorted(expected):
     parser.feed(html)
     assert parser.h1 == 1 and parser.main == 1 and parser.nav and parser.lang and parser.robots, route
     assert "main" in parser.ids, route
+    if route == "/contact/":
+        assert len(parser.forms) == 1
+        assert parser.forms[0].get("action") == "https://api.web3forms.com/submit"
+        assert parser.forms[0].get("method", "").lower() == "post"
+        assert re.fullmatch(r"[0-9a-f-]{36}", parser.fields["access_key"]["value"])
+        assert parser.fields["access_key"]["type"] == "hidden"
+        assert parser.fields["email"]["type"] == "email"
+        assert all("required" in parser.fields[k] for k in ("email", "subject", "message"))
+        assert "hidden" in parser.fields["botcheck"]
+        assert not re.search(r"mailto:|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}", html.replace("you@example.com", ""))
+    else:
+        assert not parser.forms
     assert "Engineering portfolio" in html, route
     assert not re.search(r'(?i)(https?://docs\.google\.com/|/home/[^/]+/|-----BEGIN [A-Z ]*PRIVATE KEY-----|sk-proj-)', html), route
     for href in parser.links:
