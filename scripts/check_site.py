@@ -4,7 +4,9 @@ from urllib.parse import urlsplit
 import re
 
 root = Path(__file__).resolve().parents[1] / "dist"
-expected = {"/", "/projects/", "/projects/sentinel-work/", "/projects/indigo-relay/", "/projects/sentinel/", "/case-studies/", "/case-studies/agent-session-reliability/", "/case-studies/evaluation-release-gates/", "/case-studies/bounded-retrieval/", "/case-studies/observable-infrastructure/", "/about/", "/resume/"}
+expected = {"/", "/projects/", "/projects/sentinel-work/", "/projects/indigo-relay/", "/projects/sentinel/", "/case-studies/", "/case-studies/agent-session-reliability/", "/case-studies/evaluation-release-gates/", "/case-studies/bounded-retrieval/", "/case-studies/observable-infrastructure/", "/about/", "/resume/", "/contact/"}
+allowed_contact_links = {"https://www.linkedin.com/in/montel-rice-6b89a544b", "https://github.com/montelR"}
+contact_links = set()
 
 class Page(HTMLParser):
     def __init__(self):
@@ -42,13 +44,18 @@ for route in sorted(expected):
     assert not re.search(r'(?i)(https?://docs\.google\.com/|/home/[^/]+/|-----BEGIN [A-Z ]*PRIVATE KEY-----|sk-proj-)', html), route
     for href in parser.links:
         u = urlsplit(href)
+        if u.scheme or u.netloc:
+            assert route == "/contact/" and href in allowed_contact_links, (route, href)
+            contact_links.add(href)
+            continue
         assert not u.scheme and not u.netloc, (route, href)
         if u.path:
             assert u.path in expected, (route, href)
         if u.fragment and not u.path:
             assert u.fragment in parser.ids, (route,href)
         link_count += 1
+assert contact_links == allowed_contact_links, contact_links
 assert "Allow: /" in (root / "robots.txt").read_text()
 assert (root / "favicon.svg").exists()
 assert not list(root.rglob("*.pdf"))
-print(f"PASS: {len(expected)} routes, {link_count} internal links, heading/landmark/robots checks, targeted privacy checks")
+print(f"PASS: {len(expected)} routes, {link_count} internal links, heading/landmark/robots checks, targeted privacy checks, two allowlisted professional profile links")
