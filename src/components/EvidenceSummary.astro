@@ -1,0 +1,7 @@
+---
+const { items, note }=Astro.props;
+---
+<section class="evidence" aria-label="Evidence summary">
+  <div class="metric-grid">{items.map(({value,label})=><div class="metric"><strong>{value}</strong><span>{label}</span></div>)}</div>
+  <p class="muted">{note}</p>
+</section>

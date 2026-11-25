@@ -1,0 +1,7 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import {getCollection} from 'astro:content';
+const entries=(await getCollection('cases')).sort((a,b)=>a.data.order-b.data.order);
+---
+<BaseLayout title="Engineering case studies"><header class="page-head"><p class="eyebrow">Evidence before conclusions</p><h1>Engineering case studies</h1><p>Problems, test design, observed results, and limits. These are documented summaries of independent projects.</p></header><div class="card-grid section">{entries.map(entry=><ProjectCard heading="h2" entry={entry} section="case-studies"/>)}</div></BaseLayout>

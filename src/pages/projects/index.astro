@@ -1,0 +1,7 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import {getCollection} from 'astro:content';
+const entries=(await getCollection('projects')).sort((a,b)=>a.data.order-b.data.order);
+---
+<BaseLayout title="Projects"><header class="page-head"><p class="eyebrow">Portfolio</p><h1>Projects</h1><p>Independent work in AI systems, infrastructure, and software reliability.</p></header><div class="card-grid section">{entries.map(entry=><ProjectCard heading="h2" entry={entry}/>)}</div></BaseLayout>

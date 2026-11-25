@@ -1,0 +1,13 @@
+---
+import StatusLabel from './StatusLabel.astro';
+const { entry, section='projects', heading='h3' }=Astro.props;
+const Heading=heading;
+const { title,summary,category,status,stack }=entry.data;
+---
+<article class="card">
+  <p class="eyebrow">{category}</p>
+  <Heading class="card-title"><a href={`/${section}/${entry.id}/`}>{title}<span aria-hidden="true"> ↗</span></a></Heading>
+  <p>{summary}</p>
+  <StatusLabel label={status} />
+  {stack.length>0 && <ul class="tags" aria-label="Technologies">{stack.map(t=><li>{t}</li>)}</ul>}
+</article>

@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import {getCollection} from 'astro:content';
+const projects=(await getCollection('projects')).sort((a,b)=>a.data.order-b.data.order);
+const cases=(await getCollection('cases')).sort((a,b)=>a.data.order-b.data.order);
+---
+<BaseLayout title="AI systems, software quality & infrastructure">
+  <section class="hero">
+    <p class="eyebrow">Independent technical projects</p>
+    <h1>Montel Rice</h1>
+    <p class="subtitle">AI Systems, Software Quality &amp; Infrastructure</p>
+    <p class="intro">IT professional with six years of enterprise healthcare support and an A.A.S. in Cybersecurity. My independent projects explore reliable AI workflows, automation, Linux infrastructure and evidence-driven testing.</p>
+    <div class="buttons"><a class="button primary" href="/case-studies/">View engineering case studies</a><a class="button" href="/resume/">View résumé</a></div>
+  </section>
+  <section class="section highlights" aria-labelledby="evidence-heading"><p class="eyebrow">Selected documented outcomes</p><h2 id="evidence-heading">Engineering evidence</h2><div class="metric-grid"><a class="metric highlight-link" href="/case-studies/agent-session-reliability/"><strong>19/19</strong><span>Offline adversarial scenarios passed</span></a><a class="metric highlight-link" href="/case-studies/evaluation-release-gates/"><strong>HOLD</strong><span>Release gate preserved despite 28/28 correct outcomes</span></a><a class="metric highlight-link" href="/case-studies/bounded-retrieval/"><strong>62.6%</strong><span>Lower median latency in one matched retrieval workflow</span></a></div><p class="muted">Historical project checkpoints; see each case study for scope and limitations.</p></section>
+  <section class="section"><p class="eyebrow">Selected work</p><h2>Featured projects</h2><div class="card-grid">{projects.map(entry=><ProjectCard entry={entry}/>)}</div></section>
+  <section class="section"><p class="eyebrow">Investigation &amp; verification</p><h2>Engineering case studies</h2><div class="card-grid">{cases.map(entry=><ProjectCard entry={entry} section="case-studies"/>)}</div></section>
+  <section class="section"><h2>Technical focus</h2><ul class="tags"><li>Python</li><li>Linux &amp; Docker</li><li>Swift</li><li>FastAPI</li><li>Playwright</li><li>Git</li><li>Automated testing</li><li>Networking</li></ul><p><a href="/about/">More about my background</a></p></section>
+</BaseLayout>

@@ -1,0 +1,15 @@
+{
+  "name": "montel-portfolio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --host 127.0.0.1",
+    "build": "astro build",
+    "preview": "astro preview --host 127.0.0.1",
+    "test": "python3 -B -m unittest discover -s examples/session_handoff && python3 -B -m unittest discover -s examples/release_gate && python3 -B -m unittest discover -s examples/bounded_retrieval && python3 -B -m unittest discover -s examples/monitoring"
+  },
+  "dependencies": {
+    "astro": "7.4.13"
+  }
+}

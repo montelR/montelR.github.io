@@ -1,0 +1,10 @@
+---
+const items=[['/','Home'],['/projects/','Projects'],['/case-studies/','Case studies'],['/about/','About'],['/resume/','Résumé']];
+const path=Astro.url.pathname;
+---
+<header class="shell site-header">
+  <a class="brand" href="/" aria-label="Montel Rice home">MR<span>.</span></a>
+  <nav aria-label="Primary">
+    {items.map(([url,label]) => <a href={url} aria-current={path===url?'page':undefined}>{label}</a>)}
+  </nav>
+</header>
